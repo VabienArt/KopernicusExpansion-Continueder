@@ -43,7 +43,7 @@ namespace KopernicusExpansion
             /// <summary>
             /// Iterate over all loaded mods and emit new types
             /// </summary>
-            void Awake()
+            protected void Awake()
             {
                 // Generate overloaded PQSMod types
                 AssemblyGen assembly = new AssemblyGen(Guid.NewGuid().ToString(),
@@ -123,10 +123,11 @@ namespace KopernicusExpansion
                         }
                         
                         // Generate the Loader Type
-                        Type modLoader = typeof(ModLoader<>).MakeGenericType(modGen);
+                        modGen.Complete();
+                        Type modLoader = typeof(ModLoader<>).MakeGenericType(modGen.GetCompletedType());
                         TypeGen loaderGen =
                             assembly.Public.Class($"{modType.Name.Replace("PQSMod_", "").Replace("PQS", "")}Regional",
-                                modLoader);
+                                modLoader).Attribute(typeof(RequireConfigType), Kopernicus.ConfigParser.Enumerations.ConfigType.Node);
                         {
                             PropertyGen multiplierMap = loaderGen.Public.Property(typeof(MapSOParserRGB<MapSO>), "multiplierMap")
                                 .Attribute(typeof(ParserTarget), "multiplierMap");
